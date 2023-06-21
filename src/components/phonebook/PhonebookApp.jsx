@@ -44,15 +44,15 @@ const contacts = useSelector(getContacts);
     const existingContactName = contacts.some(
       contact => contact.name.toLowerCase() === state.name.toLowerCase() 
     )
-    const existingContactNumber = contacts.find(
-      contact => contact.phone === state.phone 
+    const existingContactNumber = contacts.some(
+      contact => contact.number === state.number 
     )
     if (existingContactName) {
       alert(`${state.name} is already in the phonebook!`);
       return;
     }
     if (existingContactNumber) {
-      alert(`${state.phone} is already in the phonebook!`);
+      alert(`${state.number} is already in the phonebook!`);
       return;
     }
 
@@ -88,7 +88,7 @@ const contacts = useSelector(getContacts);
       <h1>Contact Book</h1>
       <ContactForm
         name={state.name}
-        number={state.phone}
+        number={state.number}
         handleNameChange={handleNameChange}
         handleNumberChange={handleNumberChange}
         handleSubmit={handleSubmit}
