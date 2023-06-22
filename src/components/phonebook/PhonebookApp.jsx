@@ -1,77 +1,87 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ContactForm from '../contact-form/ContactForm';
 import ContactList from '../contact-list/ContactList';
 import Filter from '../filter/Filter';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { deleteContacts, fetchContacts, postContacts } from '../../redux/operators';
-import { useSelector } from 'react-redux';
 import { getContacts } from '../../redux/selectors';
 
 
 
 
 function PhonebookApp() {
-
-    const [state, setState] = useState({
-    name: '',
-    number: '',
-  });
+const [name, setName] = useState('');
+  const [number, setNumber] = useState('');
+  //   const [state, setState] = useState({
+  //   name: '',
+  //   number: '',
+  // });
   const dispatch = useDispatch();
+  const contacts = useSelector(getContacts);
   
   useEffect(() => {
     const storedContacts = JSON.parse(localStorage.getItem('contacts') || '[]');
-    setState(storedContacts);
+    setName(storedContacts.name || '');
+    setNumber(storedContacts.number || '');
+    // setState(storedContacts);
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('contacts', JSON.stringify(state));
-  }, [state]);
+    localStorage.setItem('contacts', JSON.stringify({ name, number }));
+  }, [name, number]);
 
   function handleNameChange (event)  {
-    setState({ ...state, name: event.target.value });
+    setName(event.target.value);
   };
 
   function handleNumberChange  (event)  {
-    setState({ ...state, number: event.target.value });
+    setNumber(event.target.value);
   };
 
 
-const contacts = useSelector(getContacts);
-  function handleSubmit(event) {
+
+  // function handleSubmit(event) {
+  //   event.preventDefault();
+    function handleSubmit(event) {
     event.preventDefault();
-    
 
     const existingContactName = contacts.some(
-      contact => contact.name.toLowerCase() === state.name.toLowerCase() 
+      contact => contact.name.toLowerCase() === name.toLowerCase() 
     )
-    const existingContactNumber = contacts.some(
-      contact => contact.number === state.number 
+    const existingContactNumber = contacts.find(
+      contact => contact.phone === number 
     )
     if (existingContactName) {
-      alert(`${state.name} is already in the phonebook!`);
+      alert(`${name} is already in the phonebook!`);
       return;
     }
     if (existingContactNumber) {
-      alert(`${state.number} is already in the phonebook!`);
+      alert(`${number} is already in the phonebook!`);
       return;
     }
 
     
-    if (state.number.trim()  === "") {
-      event.preventDefault();
-      alert(`Please write  name and phone number`);
-      return;
-    }
-    if (state.name.trim()  === "") {
-      event.preventDefault();
-      alert(`Please write  name and phone number`);
+    // if (state.number.trim()  === "") {
+    //   event.preventDefault();
+    //   alert(`Please write  name and phone number`);
+    //   return;
+    // }
+    // if (state.name.trim()  === "") {
+    //   event.preventDefault();
+    //   alert(`Please write  name and phone number`);
+    //   return;
+    // }
+    if (number.trim() === '' || name.trim() === '') {
+      alert('Please enter a name and phone number');
       return;
     }
 
-
-    dispatch(postContacts(state)).then(() => {
+    dispatch(postContacts({ name, number })).then(() => {
       dispatch(fetchContacts());
     });
+      
+    setName('');
+    setNumber('');  
   };
   
   function handleDelete  (id)  {
@@ -87,14 +97,14 @@ const contacts = useSelector(getContacts);
     <div>
       <h1>Contact Book</h1>
       <ContactForm
-        name={state.name}
-        number={state.number}
+        name={name}
+        number={number}
         handleNameChange={handleNameChange}
         handleNumberChange={handleNumberChange}
         handleSubmit={handleSubmit}
       />
       <h2>Contacts</h2>
-      <Filter value={state.filter}  />
+      <Filter   />
       <ContactList    handleDelete={handleDelete} />
     </div>
   );
